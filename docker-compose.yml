@@ -1,0 +1,36 @@
+services:
+  database:
+    image: postgres:14
+    environment:
+      POSTGRES_USER: username
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: certificados_db
+    ports:
+      - '5432:5432'
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+
+  api:
+    build:
+      context: ./api
+    environment:
+      - DATABASE_URL=postgresql://username:password@database:5432/certificate_db
+      - RABBITMQ_URL=amqp://rabbitmq
+      - PORT=3000
+    depends_on:
+      - database
+      - rabbitmq
+    ports:
+      - '3000:3000'
+
+volumes:
+  db_data:
+
+
