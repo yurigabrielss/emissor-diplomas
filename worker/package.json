@@ -1,9 +1,9 @@
 {
-  "name": "api",
+  "name": "worker",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "worker.js",
   "scripts": {
-    "start": "node server.js",
+    "start": "node worker.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -12,9 +12,9 @@
   "description": "",
   "dependencies": {
     "amqplib": "^0.10.4",
-    "api": "file:",
     "dotenv": "^16.4.5",
-    "express": "^4.21.1",
-    "pg": "^8.13.1"
+    "html-pdf": "^3.0.1",
+    "pg": "^8.13.1",
+    "worker": "file:"
   }
 }
