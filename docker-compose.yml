@@ -16,16 +16,18 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
-    environment:
-      RABBITMQ_DEFAULT_USER: user
-      RABBITMQ_DEFAULT_PASS: password
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   api:
     build:
       context: ./api
     environment:
       - DATABASE_URL=postgresql://username:password@database:5432/certificados_db
-      - RABBITMQ_URL=amqp://user:password@rabbitmq:5672  # Corrigido
+      - RABBITMQ_HOST=rabbitmq
       - PORT=3000
     depends_on:
       - database
@@ -37,14 +39,16 @@ services:
     build:
       context: ./worker
     environment:
-      - RABBITMQ_URL=amqp://user:password@rabbitmq:5672  # Corrigido
+      - RABBITMQ_HOST=rabbitmq
       - DATABASE_URL=postgresql://username:password@database:5432/certificados_db
     depends_on:
       - rabbitmq
       - database
+    volumes:
+      - ./certificados_pdf:/app/certificados_pdf  # Mapeando o diretório para o host
+    # Se o worker criar os PDFs na pasta /app/certificados_pdf, os arquivos serão salvos aqui
+    ports:
+      - "3001:3001"  # Caso você queira expor alguma porta para testes ou status
 
 volumes:
   db_data:
-
-
-

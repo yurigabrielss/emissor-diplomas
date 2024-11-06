@@ -13,6 +13,7 @@ const pool = new Pool({
 
 // Configuração do RabbitMQ
 let channel;
+
 async function connectRabbitMQ() {
   try {
     const connection = await amqp.connect(process.env.RABBITMQ_URL);
