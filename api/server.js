@@ -6,12 +6,10 @@ const amqp = require('amqplib');
 const app = express();
 app.use(express.json());
 
-// Configuração do banco de dados
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL, // Certifique-se de que essa variável esteja definida
+  connectionString: process.env.DATABASE_URL,
 });
 
-// Configuração do RabbitMQ
 let channel;
 
 async function connectRabbitMQ() {
@@ -26,7 +24,6 @@ async function connectRabbitMQ() {
 }
 connectRabbitMQ();
 
-// Endpoint para criar certificado
 app.post('/certificados', async (req, res) => {
   const {
     nome,
@@ -42,7 +39,6 @@ app.post('/certificados', async (req, res) => {
   } = req.body;
 
   try {
-    // Insere o novo certificado no banco
     const result = await pool.query(
       `INSERT INTO certificados 
         (nome, nacionalidade, estado, data_nascimento, documento, data_conclusao, curso, carga_horaria, nome_assinatura, cargo, status)
@@ -53,9 +49,7 @@ app.post('/certificados', async (req, res) => {
 
     const certificadoId = result.rows[0].id;
 
-    // Verifica se o canal do RabbitMQ está disponível
     if (channel) {
-      // Envia o ID para o RabbitMQ
       channel.sendToQueue('certificates', Buffer.from(JSON.stringify({ id: certificadoId })));
     } else {
       console.error('Canal RabbitMQ não disponível');
@@ -68,7 +62,16 @@ app.post('/certificados', async (req, res) => {
   }
 });
 
-// Inicializa o servidor
+app.get('/certificados', async (req, res) => {
+  try {
+      const result = await pool.query('SELECT * FROM certificados');
+      res.json(result.rows);
+  } catch (error) {
+      console.error('Erro ao buscar certificados:', error);
+      res.status(500).json({ error: 'Erro ao buscar certificados' });
+  }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`API rodando na porta ${PORT}`);

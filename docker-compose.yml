@@ -10,6 +10,8 @@ services:
     volumes:
       - db_data:/var/lib/postgresql/data
       - ./db-postgres/ddl.sql:/docker-entrypoint-initdb.d/ddl.sql
+    networks:
+      - certificados_network
 
   rabbitmq:
     image: rabbitmq:3-management
@@ -21,6 +23,8 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+    networks:
+      - certificados_network
 
   api:
     build:
@@ -34,6 +38,8 @@ services:
       - rabbitmq
     ports:
       - '3000:3000'
+    networks:
+      - certificados_network
 
   worker:
     build:
@@ -45,10 +51,16 @@ services:
       - rabbitmq
       - database
     volumes:
-      - ./certificados_pdf:/app/certificados_pdf  # Mapeando o diretório para o host
-    # Se o worker criar os PDFs na pasta /app/certificados_pdf, os arquivos serão salvos aqui
+      - ./certificados_pdf:/app/certificados_pdf
     ports:
-      - "3001:3001"  # Caso você queira expor alguma porta para testes ou status
+      - "3001:3001"
+    networks:
+      - certificados_network
 
 volumes:
   db_data:
+
+networks:
+  certificados_network:
+    driver: bridge
+
