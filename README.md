@@ -5,6 +5,8 @@ Teste de endpoint com postman
 Incluir nos headers:
 Content-Type: application/json
 
+POST
+http://localhost:3000/certificados
 Exemplo de requisição:
 {
   "nome": "João da Silva",
@@ -18,3 +20,6 @@ Exemplo de requisição:
   "nome_assinatura": "Dr. Carlos Almeida",
   "cargo": "Diretor Acadêmico"
 }
+
+GET
+http://localhost:3000/certificados
